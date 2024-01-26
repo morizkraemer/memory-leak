@@ -1,0 +1,83 @@
+:root {
+    --grid-size: 6;
+}
+* {
+    margin: 0;
+    padding: 0;
+}
+#wrapper {
+    width: 100%;
+}
+#game > div {
+    cursor: pointer;
+    width: 100px;
+    height: 100px;
+    position: relative;
+}
+
+#game div div {
+    position: absolute;
+}
+h1 > p {
+    display: inline;
+}
+#game {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-size), 100px);
+    grid-template-rows: repeat(var(--grid-size), 100px);
+    grid-gap: 10px;
+    justify-content: center;
+    align-content: center;
+    margin-top: 25px;
+    border: solid 10px blue;
+    padding: 10px;
+    width: calc(var(--grid-size) * 110px);
+    height: calc(var(--grid-size) * 110px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#head,
+#klicks,
+#zeit {
+    text-align: center;
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 25px;
+    width: 30vw;
+}
+
+button,
+input,
+select {
+    background-color: #fbeee0;
+    height: 40px;
+    border: 2px solid #422800;
+    border-radius: 30px;
+    box-shadow: #422800 4px 4px 0 0;
+    color: #422800;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 18px;
+    padding: 0 18px;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.hidden {
+    display: none !important;
+}
