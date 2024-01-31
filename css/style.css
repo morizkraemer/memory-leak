@@ -5,8 +5,22 @@
     margin: 0;
     padding: 0;
 }
+#site {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 #wrapper {
-    width: 100%;
+    background-image: url("../img_1/background3.jpg");
+    border: black 4px solid;
+    margin: 20px;
+    width: 800px;
+    height: 800px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 #game > div {
     cursor: pointer;
@@ -21,6 +35,9 @@
 h1 > p {
     display: inline;
 }
+#gameScreen {
+    position: relative;
+}
 #game {
     display: grid;
     grid-template-columns: repeat(var(--grid-size), 100px);
@@ -28,40 +45,61 @@ h1 > p {
     grid-gap: 10px;
     justify-content: center;
     align-content: center;
-    margin-top: 25px;
     border: solid 10px blue;
     padding: 10px;
     width: calc(var(--grid-size) * 110px);
     height: calc(var(--grid-size) * 110px);
     margin-left: auto;
     margin-right: auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
+#countDown {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(var(--grid-size) * 116px);
+    height: calc(var(--grid-size) * 116px);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: calc(var(--grid-size) * 2rem);
+}
 #head,
 #klicks,
 #zeit {
     text-align: center;
 }
 
-#controls {
+.controls {
+    width: 440px;
+    height: 440px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 10px;
-    cursor: pointer;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 25px;
-    width: 30vw;
+}
+.playerNameField {
+    display: flex;
+}
+.playerNameField button {
+    width: 50px;
 }
 
 button,
 input,
 select {
     background-color: #fbeee0;
-    height: 40px;
+    width: 100%;
+    height: 44px;
     border: 2px solid #422800;
     border-radius: 30px;
     box-shadow: #422800 4px 4px 0 0;
@@ -70,14 +108,35 @@ select {
     display: inline-block;
     font-weight: 600;
     font-size: 18px;
-    padding: 0 18px;
     text-align: center;
     text-decoration: none;
     user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
+    padding: 0;
+    line-height: 1rem;
 }
-
+input {
+    cursor: text;
+}
 .hidden {
     display: none !important;
+}
+
+/*SECTION: table*/
+table {
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+td {
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #000;
+    text-align: center;
+}
+
+th {
+    padding: 15px;
+    color: #fff;
+    background-color: #55608f;
 }

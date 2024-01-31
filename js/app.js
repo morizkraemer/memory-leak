@@ -1,32 +1,42 @@
 const el = (css) => document.querySelector(css);
-const group = (css) => document.querySelectorAll(css);
 const create = (html) => document.createElement(html);
 
+// SECTION: image imports
 const backsideIMG = "./img_1/memory_1.gif";
 const pairedIMG = "./img_1/wow.gif";
-
-let difficulty = 2;
-let deckSize;
-const gameDiv = el("#game");
-let logicCounter = 0;
-let img1;
-let img2;
-let counter = 0;
-let clickCounter = 0;
-let time;
-const pictures = [];
-
-function importIMG() {
-    for (let i = 1; i < 25; i++) {
-        pictures.push(`./img_1/p_${i}.gif`);
+const imagePool = [];
+function importIMG(theme) {
+    if (theme === 0) {
+        for (let i = 1; i < 25; i++) {
+            imagePool.push(`./img_1/p_${i}.gif`);
+        }
+    }
+    if (theme === 1) {
+        for (let i = 1; i < 52; i++) {
+            imagePool.push(`./brands/brand${i}.png`);
+        }
     }
 }
 
+// SECTION: variables
+let difficulty;
+let theme;
+let deckSize;
+const gameDiv = el("#game");
+let img1;
+let img2;
+let pairCounter = 0;
+let clickCounter = 0;
+let gameTime;
+let logicCounter = 0;
+let roundCounter = 0;
+
 function randomIMG() {
-    const index = Math.floor(Math.random() * pictures.length);
-    return pictures.splice(index, 1);
+    const index = Math.floor(Math.random() * imagePool.length);
+    return imagePool.splice(index, 1);
 }
 
+// SECTION: functions
 function createCard(n, img) {
     const div = create("div");
     const backSide = create("img");
@@ -48,7 +58,7 @@ function createCard(n, img) {
         this.children[2].className = state === "pair" ? "" : "hidden";
     };
     div.pair = n;
-    div.showCard("front");
+    div.showCard("back");
     return div;
 }
 
@@ -64,8 +74,8 @@ function createPairs() {
 }
 
 function gameLogic() {
-    logicCounter++;
     //turn over first card
+    logicCounter++;
     if (logicCounter === 1) {
         if (!img1) {
             img1 = this;
@@ -84,29 +94,16 @@ function gameLogic() {
         }
         //cards match
         if (img1.pair === img2.pair) {
-            counter++;
-            el("#foundPairs").innerText = counter;
+            pairCounter++;
+            el("#foundPairs").innerText = pairCounter;
             img1.showCard("pair");
             img2.showCard("pair");
             img1 = null;
             img2 = null;
             logicCounter = 0;
             //game ended
-            if (counter === deckSize / 2) {
-                // const allCards = group("#game div");
-                el("#klicks").innerText = clickCounter;
-                el("#start").className = "";
-                el("#time").innerText = `${Math.floor((new Date() - time) / 1000)}s`;
-                const allCards = gameDiv.querySelectorAll("div");
-                let c = 0;
-                function revealCards() {
-                    if (c < deckSize) {
-                        allCards[c].showCard("front");
-                        c++;
-                        setTimeout(revealCards, 100);
-                    }
-                }
-                revealCards();
+            if (pairCounter === deckSize / 2) {
+                endGame();
             }
         } else {
             //cards dont match
@@ -136,20 +133,195 @@ function dealCards(pairsArray) {
     }
     c();
 }
-function game() {
+
+function initGame() {
+    gameDiv.innerHTML = "";
     difficulty = parseInt(el("#difficulty").value);
+    theme = parseInt(el("#theme").value);
     deckSize = difficulty * difficulty;
     document.documentElement.style.setProperty("--grid-size", difficulty);
-    el("#controls").className = "hidden";
-    gameDiv.classList.remove("hidden");
     clickCounter = 0;
-    counter = 0;
-    gameDiv.innerHTML = "";
-    time = new Date();
-    el("#foundPairs").innerText = "";
-    el("#klicks").innerText = "";
-    importIMG();
+    pairCounter = 0;
+    importIMG(theme);
     dealCards(createPairs());
 }
 
-el("#start").addEventListener("click", game);
+function startGame() {
+    gameTime = new Date();
+}
+
+function endGame() {
+    el("#klicks").innerText = clickCounter;
+    let dTime = new Date() - gameTime;
+    el("#time").innerText = `${(dTime / 1000).toFixed(2)}s`;
+    switchScreen(3);
+    scoreboard[roundCounter % playerCount].win(dTime, clickCounter);
+    roundCounter++;
+    updateScoreBoard();
+    const allCards = gameDiv.querySelectorAll("div");
+    let c = 0;
+    function revealCards() {
+        if (c < deckSize) {
+            allCards[c].showCard("front");
+            c++;
+            setTimeout(revealCards, 100);
+        }
+    }
+    revealCards();
+}
+
+// SECTION: scoreboard and players
+const playerNamesEL = el("#playerNames");
+const scoreboardElement = document.querySelector("#scoreboard>tbody");
+let playerCount = 1;
+const scoreboard = [];
+const screens = [el("#playerSelectScreen"), el("#preGameScreen"), el("#gameScreen"), el("#endGameScreen")];
+
+function switchScreen(screen) {
+    screens[0].className = screen === 0 ? "controls" : "controls hidden";
+    screens[1].className = screen === 1 ? "controls" : "controls hidden";
+    screens[2].className = screen === 2 ? "" : "hidden";
+    screens[3].className = screen === 3 ? "controls" : "controls hidden";
+}
+
+const playerProto = {
+    name: "Player1",
+    gameScore: 0,
+    bestTimeMS: 0,
+    bestClicks: 0,
+    worstClicks: 0,
+    totalClicks: 0,
+    totalTime: 0,
+    get avgTime() {
+        const result = this.totalTime / 1000 / this.gameScore;
+        return isNaN(result) ? "-" : result.toFixed(2);
+    },
+    get avgClicks() {
+        const result = this.totalClicks / this.gameScore;
+        return isNaN(result) ? "-" : result.toFixed(2);
+    },
+    get bestTime() {
+        return this.bestTimeMS / 1000;
+    },
+    get data() {
+        return [
+            this.name,
+            this.gameScore,
+            this.avgTime,
+            this.avgClicks,
+            this.bestTime.toFixed(2),
+            this.bestClicks,
+            this.worstClicks,
+        ];
+    },
+    win: function (time, clicks) {
+        if (this.bestClicks === 0) {
+            this.bestClicks = clicks;
+        }
+        if (this.bestTimeMS === 0) {
+            this.bestTimeMS = time;
+        }
+        if (clicks < this.bestClicks) {
+            this.bestClicks = clicks;
+        }
+        if (time < this.bestTimeMS) {
+            this.bestTimeMS = time;
+        }
+        if (clicks > this.worstClicks) {
+            this.worstClicks = clicks;
+        }
+        this.totalTime += time;
+        this.totalClicks += clicks;
+        this.gameScore++;
+    },
+};
+
+function addPLayerNameField() {
+    if (playerCount < 4) {
+        playerCount++;
+        const div = create("div");
+        div.className = "playerNameField";
+        const input = create("input");
+        input.type = "text";
+        input.name = `player${playerCount}`;
+        input.id = `player${playerCount}`;
+        input.placeholder = `Player ${playerCount} Name`;
+        input.required = true;
+        const btn = create("button");
+        btn.innerText = "X";
+        btn.addEventListener("click", removePlayerNameField);
+        div.append(input);
+        div.append(btn);
+        playerNamesEL.append(div);
+    }
+}
+
+function removePlayerNameField() {
+    playerCount--;
+    const nf = this.parentNode;
+    playerNamesEL.removeChild(nf);
+}
+
+function playerConstructor(name) {
+    const player = Object.create(playerProto);
+    player.name = name;
+    scoreboard.push(player);
+}
+
+function createPlayers() {
+    [...playerNamesEL.children].forEach((player) => {
+        playerConstructor(player.children[0].value);
+    });
+}
+
+function createTableRow(p) {
+    const r = document.createElement("tr");
+    function createTD(attr) {
+        const t = document.createElement("td");
+        t.innerText = attr;
+        r.append(t);
+    }
+    p.data.forEach((value) => {
+        createTD(value);
+    });
+    return r;
+}
+
+function updateTableRow(tableRowElement, player) {
+    player.data.forEach((element, i) => {
+        [...tableRowElement.children][i].innerText = element;
+    });
+}
+
+function createScoreBoard() {
+    scoreboard.forEach((player) => {
+        scoreboardElement.append(createTableRow(player));
+    });
+}
+
+function updateScoreBoard() {
+    scoreboard.forEach((player, index) => {
+        updateTableRow(scoreboardElement.children[index], player);
+        // scoreboardElement.children[1]g
+    });
+}
+
+function lockPlayers() {
+    createPlayers();
+    createScoreBoard();
+    switchScreen(1);
+}
+function lockDifficulty() {
+    initGame();
+    switchScreen(2);
+    startGame();
+}
+function restartGame() {
+    initGame();
+    switchScreen(2);
+    startGame();
+}
+el("#addPlayer").addEventListener("click", addPLayerNameField);
+el("#playerSelected").addEventListener("click", lockPlayers);
+el("#start").addEventListener("click", lockDifficulty);
+el("#restart").addEventListener("click", restartGame);
