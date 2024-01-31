@@ -103,6 +103,7 @@ function gameLogic() {
             logicCounter = 0;
             //game ended
             if (pairCounter === deckSize / 2) {
+                console.log("hi");
                 endGame();
             }
         } else {
@@ -146,8 +147,27 @@ function initGame() {
     dealCards(createPairs());
 }
 
+function countDown(callback) {
+    let c = 3;
+    function C() {
+        if (c > 0) {
+            el("#countDownNumber").innerText = c;
+            c--;
+            setTimeout(C, 1000);
+        } else {
+            if (callback) {
+                callback();
+            }
+        }
+    }
+    C();
+}
+
 function startGame() {
-    gameTime = new Date();
+    countDown(() => {
+        el("#countDown").className = "hidden";
+        gameTime = new Date();
+    });
 }
 
 function endGame() {
@@ -317,6 +337,7 @@ function lockDifficulty() {
     startGame();
 }
 function restartGame() {
+    console.log("hi");
     initGame();
     switchScreen(2);
     startGame();
