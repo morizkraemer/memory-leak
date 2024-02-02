@@ -1,0 +1,5 @@
+- implement rounds table
+- implement forgotten cards counter for cards that the player sees and then forgets the location
+- more card themes
+- implement higher difficulty for themes with enough cards
+
