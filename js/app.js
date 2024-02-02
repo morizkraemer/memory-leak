@@ -58,7 +58,7 @@ function createCard(n, img) {
         this.children[2].className = state === "pair" ? "" : "hidden";
     };
     div.pair = n;
-    div.showCard("back");
+    div.showCard("front");
     return div;
 }
 
@@ -337,7 +337,6 @@ function lockDifficulty() {
     startGame();
 }
 function restartGame() {
-    console.log("hi");
     initGame();
     switchScreen(2);
     startGame();
