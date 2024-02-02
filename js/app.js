@@ -7,11 +7,13 @@ const pairedIMG = "./img_1/wow.gif";
 const imagePool = [];
 function importIMG(theme) {
     if (theme === 0) {
+        imagePool.length = 0;
         for (let i = 1; i < 25; i++) {
             imagePool.push(`./img_1/p_${i}.gif`);
         }
     }
     if (theme === 1) {
+        imagePool.length = 0;
         for (let i = 1; i < 52; i++) {
             imagePool.push(`./brands/brand${i}.png`);
         }
@@ -30,6 +32,7 @@ let clickCounter = 0;
 let gameTime;
 let logicCounter = 0;
 let roundCounter = 0;
+let currentPlayer;
 
 function randomIMG() {
     const index = Math.floor(Math.random() * imagePool.length);
@@ -95,7 +98,6 @@ function gameLogic() {
         //cards match
         if (img1.pair === img2.pair) {
             pairCounter++;
-            el("#foundPairs").innerText = pairCounter;
             img1.showCard("pair");
             img2.showCard("pair");
             img1 = null;
@@ -103,7 +105,6 @@ function gameLogic() {
             logicCounter = 0;
             //game ended
             if (pairCounter === deckSize / 2) {
-                console.log("hi");
                 endGame();
             }
         } else {
@@ -134,6 +135,7 @@ function dealCards(pairsArray) {
     }
     c();
 }
+console.log("hi");
 
 function initGame() {
     gameDiv.innerHTML = "";
@@ -149,6 +151,8 @@ function initGame() {
 
 function countDown(callback) {
     let c = 3;
+    el("#countDown").className = "";
+    el("#playerName").innerText = scoreboard[currentPlayer].name;
     function C() {
         if (c > 0) {
             el("#countDownNumber").innerText = c;
@@ -164,6 +168,7 @@ function countDown(callback) {
 }
 
 function startGame() {
+    currentPlayer = roundCounter % playerCount;
     countDown(() => {
         el("#countDown").className = "hidden";
         gameTime = new Date();
@@ -171,11 +176,11 @@ function startGame() {
 }
 
 function endGame() {
-    el("#klicks").innerText = clickCounter;
     let dTime = new Date() - gameTime;
-    el("#time").innerText = `${(dTime / 1000).toFixed(2)}s`;
+    const out = `With ${clickCounter} Clicks you found ${pairCounter} pairs in ${(dTime / 1000).toFixed(2)}s`;
+    el("#foundPairs").innerText = out;
     switchScreen(3);
-    scoreboard[roundCounter % playerCount].win(dTime, clickCounter);
+    scoreboard[currentPlayer].win(dTime, clickCounter);
     roundCounter++;
     updateScoreBoard();
     const allCards = gameDiv.querySelectorAll("div");
