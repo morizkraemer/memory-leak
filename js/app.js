@@ -2,8 +2,8 @@ const el = (css) => document.querySelector(css);
 const create = (html) => document.createElement(html);
 
 // SECTION: image imports
-const backsideIMG = "./img_1/memory_1.gif";
-const pairedIMG = "./img_1/wow.gif";
+const BACKSIDE_IMAGE = "./img_1/memory_1.gif";
+const PAIR_IMAGE = "./img_1/wow.gif";
 const imagePool = [];
 function importIMG(theme) {
     if (theme === 0) {
@@ -24,6 +24,7 @@ function importIMG(theme) {
 let difficulty;
 let theme;
 let deckSize;
+let gameLength;
 const gameDiv = el("#game");
 let img1;
 let img2;
@@ -33,6 +34,7 @@ let gameTime;
 let logicCounter = 0;
 let roundCounter = 0;
 let currentPlayer;
+const MAX_PLAYER_COUNT = 6;
 
 function randomIMG() {
     const index = Math.floor(Math.random() * imagePool.length);
@@ -43,13 +45,13 @@ function randomIMG() {
 function createCard(n, img) {
     const div = create("div");
     const backSide = create("img");
-    backSide.src = backsideIMG;
+    backSide.src = BACKSIDE_IMAGE;
     backSide.alt = "Memory Karte";
     const frontSide = create("img");
     frontSide.src = img;
     frontSide.alt = `Bild ${n}`;
     const paired = create("img");
-    paired.src = pairedIMG;
+    paired.src = PAIR_IMAGE;
     paired.alt = "Paar gefunden!";
     div.append(backSide);
     div.append(frontSide);
@@ -135,12 +137,11 @@ function dealCards(pairsArray) {
     }
     c();
 }
-console.log("hi");
-
+//TODO: implement number of rounds
 function initGame() {
     gameDiv.innerHTML = "";
-    difficulty = parseInt(el("#difficulty").value);
-    theme = parseInt(el("#theme").value);
+    difficulty = parseInt(el("#selectDifficulty").value);
+    theme = parseInt(el("#selectTheme").value);
     deckSize = difficulty * difficulty;
     document.documentElement.style.setProperty("--grid-size", difficulty);
     clickCounter = 0;
@@ -149,10 +150,11 @@ function initGame() {
     dealCards(createPairs());
 }
 
-function countDown(callback) {
+function readyScreen(callback) {
     let c = 3;
+    el("#currentRound").innerText = Math.floor(roundCounter / playerCount + 1);
     el("#countDown").className = "";
-    el("#playerName").innerText = scoreboard[currentPlayer].name;
+    el("#currentPlayerName").innerText = scoreboard[currentPlayer].name;
     function C() {
         if (c > 0) {
             el("#countDownNumber").innerText = c;
@@ -169,7 +171,7 @@ function countDown(callback) {
 
 function startGame() {
     currentPlayer = roundCounter % playerCount;
-    countDown(() => {
+    readyScreen(() => {
         el("#countDown").className = "hidden";
         gameTime = new Date();
     });
@@ -214,7 +216,6 @@ const playerProto = {
     gameScore: 0,
     bestTimeMS: 0,
     bestClicks: 0,
-    worstClicks: 0,
     totalClicks: 0,
     totalTime: 0,
     get avgTime() {
@@ -229,15 +230,7 @@ const playerProto = {
         return this.bestTimeMS / 1000;
     },
     get data() {
-        return [
-            this.name,
-            this.gameScore,
-            this.avgTime,
-            this.avgClicks,
-            this.bestTime.toFixed(2),
-            this.bestClicks,
-            this.worstClicks,
-        ];
+        return [this.name, this.avgTime, this.avgClicks, this.bestTime.toFixed(2), this.bestClicks];
     },
     win: function (time, clicks) {
         if (this.bestClicks === 0) {
@@ -252,9 +245,6 @@ const playerProto = {
         if (time < this.bestTimeMS) {
             this.bestTimeMS = time;
         }
-        if (clicks > this.worstClicks) {
-            this.worstClicks = clicks;
-        }
         this.totalTime += time;
         this.totalClicks += clicks;
         this.gameScore++;
@@ -262,7 +252,8 @@ const playerProto = {
 };
 
 function addPLayerNameField() {
-    if (playerCount < 4) {
+    if (playerCount < MAX_PLAYER_COUNT) {
+        el("#playerSelected").disabled = true;
         playerCount++;
         const div = create("div");
         div.className = "playerNameField";
@@ -272,6 +263,7 @@ function addPLayerNameField() {
         input.id = `player${playerCount}`;
         input.placeholder = `Player ${playerCount} Name`;
         input.required = true;
+        input.addEventListener("input", enablePlayerSelected);
         const btn = create("button");
         btn.innerText = "X";
         btn.addEventListener("click", removePlayerNameField);
@@ -279,13 +271,30 @@ function addPLayerNameField() {
         div.append(btn);
         playerNamesEL.append(div);
     }
+    if (playerCount === MAX_PLAYER_COUNT) {
+        el("#addPlayer").disabled = true;
+    }
 }
 
 function removePlayerNameField() {
     playerCount--;
     const nf = this.parentNode;
     playerNamesEL.removeChild(nf);
+    if (playerCount < MAX_PLAYER_COUNT) {
+        el("#addPlayer").disabled = false;
+    }
 }
+
+// FIX: this enables the next screen button if you type in any of the empty playername fields
+function enablePlayerSelected() {
+    if (el("#player1").value !== "" && this.value !== "") {
+        el("#playerSelected").disabled = false;
+    } else {
+        el("#playerSelected").disabled = true;
+    }
+}
+
+el("#player1").addEventListener("input", enablePlayerSelected);
 
 function playerConstructor(name) {
     const player = Object.create(playerProto);

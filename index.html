@@ -28,7 +28,7 @@
                 >
                     <div
                         id="playerNames"
-                        class="controls"
+                        class=""
                     >
                         <div class="playerNameField">
                             <input
@@ -46,7 +46,12 @@
                     >
                         Remove Player
                     </button>
-                    <button id="playerSelected">Next</button>
+                    <button
+                        id="playerSelected"
+                        disabled
+                    >
+                        Next
+                    </button>
                 </div>
 
                 <!--SECTION: preGameScreen-->
@@ -55,18 +60,31 @@
                     class="controls hidden"
                 >
                     <select
-                        name="theme"
-                        id="theme"
-                        class="theme"
+                        name="selectTheme"
+                        id="selectTheme"
+                        class="selectTheme"
                     >
                         <option value="0">Theme: Normal</option>
                         <option value="1">Theme: Brands</option>
                         <!-- <option value="2">Difficulty: Hard</option> -->
                     </select>
                     <select
-                        name="difficulty"
-                        id="difficulty"
-                        class="difficulty"
+                        name="selectRounds"
+                        id="selectRounds"
+                        class="selectRounds"
+                    >
+                        <option value="1">1 Round</option>
+                        <option value="2">2 Rounds</option>
+                        <option value="3">3 Rounds</option>
+                        <option value="5">5 Rounds</option>
+                        <option value="7">7 Rounds</option>
+                        <option value="9">9 Rounds</option>
+                        <option value="9999">Infinite Rounds</option>
+                    </select>
+                    <select
+                        name="selectDifficulty"
+                        id="selectDifficulty"
+                        class="selectDifficulty"
                     >
                         <option value="2">Difficulty: Baby</option>
                         <option value="4">Difficulty: Easy</option>
@@ -81,12 +99,21 @@
                     id="gameScreen"
                     class="hidden"
                 >
+                    <div id="roundInfo">
+                        <h1>
+                            Current Round:
+                            <p id="currentRound"></p>
+                        </h1>
+                        <h1>
+                            Current Player:
+                            <p id="currentPlayerName"></p>
+                        </h1>
+                    </div>
                     <div id="game"></div>
                     <div
                         id="countDown"
                         class=""
                     >
-                        <h1 id="playerName">Player 1</h1>
                         <h1 id="countDownNumber"></h1>
                     </div>
                 </div>
@@ -102,21 +129,19 @@
                     <button id="restart">Restart Game</button>
                 </div>
             </div>
+            <table id="scoreboard">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Average Time</th>
+                        <th>Average Clicks</th>
+                        <th>Best Time</th>
+                        <th>Best Clicks</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
         <!-- SECTION: SCOREBOARD -->
-        <table id="scoreboard">
-            <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Score</th>
-                    <th>Average Time</th>
-                    <th>Average Clicks</th>
-                    <th>Best Time</th>
-                    <th>Best Clicks</th>
-                    <th>Worst Clicks</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
     </body>
 </html>
